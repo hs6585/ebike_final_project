@@ -4,9 +4,13 @@ class Motor:
         self.c_m = motorconstant_Nm_A
         self.wheel_r = wheel_radius_inch / 39.37
 
-    def calc_power(self, force_N: float, velocity_m_s: float) -> float: #Leistung F*v berechnen
-        power = force_N * velocity_m_s
-        return power
+    def calc_power_mech(self, force_N: float, velocity_m_s: float) -> float: #mechanische Leistung F*v berechnen
+        mech_power = force_N * velocity_m_s
+        return mech_power
+    
+    def calc_power_el(self, voltage_V: float, current_A:float) -> float:    #elektrsche Leistung U*I
+        el_power = voltage_V * current_A
+        return el_power
 
     def calc_torque(self, force_N: float) -> float:     #Drehmoment mit F*r berechnen
         torque = force_N * self.wheel_r
