@@ -19,7 +19,7 @@ class BatteryPack(BatteryBase):
         self.R_int = internal_resistance_mOhm * 1e-3    #umrechnen in Ohm für SI_Einheiten
         self.Vmin = Vmin
         self.Vmax = Vmax
-        
+
 
     def apply_current(self, current: float, duration: float) -> None:
         dsoc = -(current * duration) / self.C_nom
@@ -35,5 +35,30 @@ class BatteryPack(BatteryBase):
     def is_full(self) -> bool:
         return self.soc >= 1.0 - 1e-9
 
+    def get_history(self) -> dict:
+        #Hier wird der Verlauf der Batterie gespeichert, um danach die Daten plotten zu können
+        return []
+    
+
     def __str__(self):
         return f"BatteryPack(SoC={self.soc * 100:.1f}%, V={self.voltage():.2f} V)"
+
+
+
+
+if __name__ == "__main__":
+    akku = BatteryPack(capacity_nom_Ah=15.0, internal_resistance_mOhm=7)
+
+    print(f"Start: {akku}")
+    print(f"Akku ist voll? {akku.is_full()}")
+    print(f"Spannung bei 20 Ampere: {akku.voltage(20.0)} V")
+
+    akku.apply_current(20.0, 60.0)
+    print(f"{akku}")
+    akku.apply_current(20.0, 1800.0)
+    print(f"{akku}")
+    print(f"Akku ist leer? {akku.is_empty()}")
+
+    akku.apply_current(20.0, 3600.0)
+    print(f"{akku}")
+    print(f"Akku ist leer? {akku.is_empty()}")

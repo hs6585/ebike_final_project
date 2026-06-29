@@ -34,11 +34,13 @@ class BatteryBase(ABC):
         """
         pass
 
+    
+    
     @abstractmethod
     def get_history(self) -> dict:
-        """
-        Hier wird der Verlauf der Batterie gespeichert, um danach die Daten plotten zu können
-        """
+        
+        #Hier wird der Verlauf der Batterie gespeichert, um danach die Daten plotten zu können
+        
         pass
 
 
