@@ -8,6 +8,8 @@ class CalcDataFromGPS():
         self.v = []
         self.a = []
         self.incline_angle = []
+        self.F_D = []
+        self.F_A = []
 
     def calculate_distance(self):
         """
@@ -89,7 +91,32 @@ class CalcDataFromGPS():
         self.incline_angle = np.degrees(angle_rad)
         
         return self.incline_angle #in Grad
-
+    
+    def calculate_drag_force(self, rho=1.2, cw_A=0.5625):
+        """
+        Berechnet die Luftwiderstandskraft F_D zwischen den GPS Punkten.
+        """
+        self.F_D = 0.5 * rho * cw_A * (self.v ** 2)
+        return self.F_D # in N
+    
+    def calculate_driving_force(self, m=80.0, g=9.81):
+        """
+        Berechnet die notwendige Antriebskraft in Newton.
+        """
+        #Array für Luftwiderstandskraft und Steigungswinkel um 1 kürzen, damit es gleichlang wie das Beschleunigungsarray ist
+        F_D_aligned = self.F_D[:-1]
+        angle_aligned = self.incline_angle[:-1]
+        
+        #Hangabtriebskraft berechnen
+        F_H = m * g * np.sin(np.radians(angle_aligned))
+        
+        #Beschleunigungskraft berechnen
+        F_acceleration = m * self.a
+        
+        #Antriebskraft berechnen
+        self.F_A = F_acceleration + F_D_aligned + F_H
+        
+        return self.F_A #in Newton
         
 if __name__ == "__main__":
 
@@ -109,5 +136,10 @@ if __name__ == "__main__":
     print("Erste Teilbeschleunigung in m/s^2:", (a[0]))
     p = x.calculate_incline_angle()
     print("Erster Steigungswinkel in °:", (p[0]))
+    F_D = x.calculate_drag_force()
+    print("Erste Luftwiderstandskraft in N:", (F_D[0]))
+    F_A = x.calculate_driving_force()
+    print("Erste Antriebskraft in N:", (F_A[0]))
+
 
         
