@@ -7,6 +7,7 @@ class CalcDataFromGPS():
         self.delta_s = []
         self.v = []
         self.a = []
+        self.incline_angle = []
 
     def calculate_distance(self):
         """
@@ -71,19 +72,42 @@ class CalcDataFromGPS():
         self.a = delta_v / delta_t_acceleration
         
         return self.a #in m/s^2
+    
+    def calculate_incline_angle(self):
+        """
+        Berechnet die Steigung zwischen den GPS Punkten.
+        """
+        ele = self.data_dict["ele"]
+        
+        #deltaH berechnen
+        delta_h = ele[1:] - ele[:-1]
 
+        #Steigungswinkel in RAD berechnen
+        angle_rad = np.arctan2(delta_h, self.delta_s)
+
+        # Bogenmaß in Grad umrechnen für bessere Lesbarkeit
+        self.incline_angle = np.degrees(angle_rad)
+        
+        return self.incline_angle #in Grad
+
+        
 if __name__ == "__main__":
 
-    from readGPSdata import load_and_process_data
-    data_dict = load_and_process_data("final_project_input_data.csv")
+    data_dict = data_dict = {
+    "lat": np.array([47.583114, 47.582910, 47.582820]),
+    "lon": np.array([12.170826, 12.170766, 12.170733]),
+    "ele": np.array([494.888597, 494.888597, 494.888597]),
+    "time": np.array([14.187, 16.665, 17.800]),
+    "temperature": np.array([28.69968, 28.85415, 28.69915])}
     
     x = CalcDataFromGPS(data_dict)
-    
     s = x.calculate_distance()
     print("Erste Teilstrecke in m:", s[0])
     v = x.calculate_speed()
     print("Erste Teilgeschwindigkeit in m/s:", (v[0]))
     a = x.calculate_acceleration()
     print("Erste Teilbeschleunigung in m/s^2:", (a[0]))
+    p = x.calculate_incline_angle()
+    print("Erster Steigungswinkel in °:", (p[0]))
 
         
