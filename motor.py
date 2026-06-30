@@ -1,6 +1,6 @@
 class Motor:
 
-    def __init__(self, motorconstant_Nm_A: float = 1.5, wheel_radius_inch: float = 27.0):
+    def __init__(self, motorconstant_Nm_A: float = 1.5, wheel_radius_inch: float = 13.5):
         self.c_m = motorconstant_Nm_A
         self.wheel_r = wheel_radius_inch / 39.37
 
