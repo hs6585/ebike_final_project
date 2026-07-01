@@ -1,96 +1,62 @@
 import readGPSdata as gps
 from calc_data_from_gps import CalcDataFromGPS
 from motor import Motor
-from lipo_battery import LiFePO4BatteryPack
+from lipo_battery import LiPoBatteryPack
 from nmc_battery import NMCBatteryPack
-
+import plots
 import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib.dates as mdates
 
 
-csv_file = "final_project_input_data.csv"
-data_dict = gps.load_and_process_data(csv_file) 
 
-gpsdata = CalcDataFromGPS(data_dict) 
-distance = gpsdata.calculate_distance()           
-velocity = gpsdata.calculate_speed()              
-accelearation = gpsdata.calculate_acceleration()   
-incline_angle = gpsdata.calculate_incline_angle() 
-drag_force = gpsdata.calculate_drag_force()        
-driving_force = gpsdata.calculate_driving_force() 
+csv_file = "final_project_input_data.csv" #CSV-Datei mit GPS-Messdatensatz
+data_dict = gps.load_and_process_data(csv_file) #Dictionary mit GPS-Daten als float
+
+gpsdata = CalcDataFromGPS(data_dict) #Initialisierung der Klasse CalcDataFromGPS
+distance = gpsdata.calculate_distance() #Strecke in m       
+velocity = gpsdata.calculate_speed() #Geschwindigkeit in m/s
+accelearation = gpsdata.calculate_acceleration() #Beschleunigung in m/s^2
+incline_angle = gpsdata.calculate_incline_angle() #Steigungswinkel in °
+drag_force = gpsdata.calculate_drag_force() #Luftwiderstandskraft in N       
+driving_force = gpsdata.calculate_driving_force() #Antriebskraft in N
 
 
-elevation = gpsdata.data_dict["ele"]
-time = gpsdata.data_dict["time"]    
+elevation = gpsdata.data_dict["ele"] 
+time = gpsdata.data_dict["time"]  
+timedt = gpsdata.data_dict["timedt"]  
 temp = gpsdata.data_dict["temp"]
 
 
-# Motor
-motor = Motor() 
-power_mech = motor.calc_power_mech(driving_force, velocity) 
-torque = motor.calc_torque(driving_force) 
-current = motor.calc_current_motor(torque) 
+#Motor
+motor = Motor() #Initialisierung der Klasse Motor
+power_mech = motor.calc_power_mech(driving_force, velocity) #Mechanisches Leistungsprofil in W
+torque = motor.calc_torque(driving_force) #Drehmoment in Nm
+current = motor.calc_current_motor(torque) #Motorstrom in A
 
 #Batterie:
-battery_lipo = LiFePO4BatteryPack(capacity_nom_Ah=30) 
-battery_nmc = NMCBatteryPack(capacity_nom_Ah=30)
+battery_lipo = LiPoBatteryPack(capacity_nom_Ah=30) #Batterypack mit lipo Zellen 
+battery_nmc = NMCBatteryPack(capacity_nom_Ah=30) #Batterypack mit nmc Zellen
 
 
-voltage_lipo = battery_lipo.voltage(current) 
-voltage_nmc = battery_nmc.voltage(current) 
-power_el_lipo = motor.calc_power_el(voltage_lipo, current)
-power_el_nmc = motor.calc_power_el(voltage_nmc, current) 
+voltage_lipo = battery_lipo.voltage(current) #Spannung in V von lipo
+voltage_nmc = battery_nmc.voltage(current) #Spannung in V von nmc
+power_el_lipo = motor.calc_power_el(voltage_lipo, current) #Elektrisches Leistungsprofil von lipo Batterypack
+power_el_nmc = motor.calc_power_el(voltage_nmc, current) #Elektrisches Leistungsprofil von nmc Batterypack
+
+
+plots.height_power_profile(timedt, elevation, power_el_lipo, "Lipo-Batterypack") #Leistungs -und Höhenverlauf eines Lipoakkus plotten
+plots.height_power_profile(timedt, elevation, power_el_nmc, "Nmc-Batterypack") #Leistungs -und Höhenverlauf eines Nmcakkus plotten
+
+
+soc_verlauf_lipo = battery_lipo.simulate(time, current) #soc Verlauf Lipoakku bestimmen
+plots.soc_profile(timedt, elevation, soc_verlauf_lipo, "Lipo-Batterypack's") #Lade -und Höhenverlauf eines Lipoakkus plotten
+
+soc_verlauf_nmc = battery_nmc.simulate(time, current) #soc Verlauf Nmcakku bestimmen
+plots.soc_profile(timedt, elevation, soc_verlauf_nmc, "Nmc-Batterypack's") #Lade -und Höhenverlauf eines Nmcakkus plotten
 
 
 
-#Höhenverlauf und Leistungsverlauf plotten:
-
-x_axis = time 
-height = elevation  
-power = power_el_lipo 
-
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
 
-ax1.plot(x_axis, power, color="k", linewidth=1.5, label="elektrische Leistung")
-ax1.set_ylabel("Leistung [W]", fontsize=11)
-ax1.title.set_text("Höhen- und Leistungsverlauf über die Zeit")
-ax1.grid(True, alpha=0.5)   #macht das gitter ein wenig transparent weil sonst störts
-
-ax2.plot(x_axis, height, color = "r", linewidth=2, label="Höhe")
-ax2.set_xlabel("Zeit [s]", fontsize=11)
-ax2.set_ylabel("Höhe [m]", fontsize=11)
-ax2.grid(True, alpha=0.5)
-
-plt.tight_layout()
-plt.show()
-
-#------------------------------------------
-#Ladeverlauf und Höhenverlauf plotten:
-
-height = elevation  
-
-for i in range(1, len(time)):
-    delta_t = time[i] - time[i-1]
-    strom_aktuell = current[i]
-
-    battery_lipo.apply_current(strom_aktuell, delta_t)
-
-soc_verlauf = battery_lipo.get_history()
-soc_verlauf.insert(0, 1.0)  #damit die länge der liste weiterhin richtig bleibt
 
 
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
-
-ax1.plot(time, soc_verlauf, color="k", linewidth=1.5, label="Ladezustand")
-ax1.set_ylabel("Ladezustand (%)", fontsize=11)
-ax1.title.set_text("Ladezustand der Batterie")
-ax1.grid(True, alpha=0.5)   #macht das gitter ein wenig transparent weil sonst störts
-
-ax2.plot(time, height, color = "r", linewidth=2, label="Höhe")
-ax2.set_xlabel("Zeit [s]", fontsize=11)
-ax2.set_ylabel("Höhe [m]", fontsize=11)
-ax2.grid(True, alpha=0.5)
-
-plt.tight_layout()
-plt.show()

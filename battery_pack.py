@@ -43,6 +43,15 @@ class BatteryPack(BatteryBase):
         #Hier wird der Verlauf der Batterie gespeichert, um danach die Daten plotten zu können
         return self.history
     
+    def simulate(self, time, current):
+        for i in range(1, len(time)):
+            delta_t = time[i] - time[i-1]
+            strom_aktuell = current[i]
+            self.apply_current(strom_aktuell, delta_t)
+
+        soc_verlauf = self.get_history()
+        soc_verlauf.insert(0, 1.0)  #damit die länge der liste weiterhin richtig bleibt
+        return soc_verlauf
 
     def __str__(self):
         return f"BatteryPack(SoC={self.soc * 100:.1f}%, V={self.voltage():.2f} V)"
