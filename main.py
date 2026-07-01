@@ -32,8 +32,10 @@ torque = motor.calc_torque(driving_force)
 current = motor.calc_current_motor(torque) 
 
 #Batterie:
-battery_lipo = LiFePO4BatteryPack(capacity_nom_Ah=100) 
-battery_nmc = NMCBatteryPack(capacity_nom_Ah=100)
+battery_lipo = LiFePO4BatteryPack(capacity_nom_Ah=30) 
+battery_nmc = NMCBatteryPack(capacity_nom_Ah=30)
+
+
 voltage_lipo = battery_lipo.voltage(current) 
 voltage_nmc = battery_nmc.voltage(current) 
 power_el_lipo = motor.calc_power_el(voltage_lipo, current)
@@ -56,6 +58,36 @@ ax1.title.set_text("Höhen- und Leistungsverlauf über die Zeit")
 ax1.grid(True, alpha=0.5)   #macht das gitter ein wenig transparent weil sonst störts
 
 ax2.plot(x_axis, height, color = "r", linewidth=2, label="Höhe")
+ax2.set_xlabel("Zeit [s]", fontsize=11)
+ax2.set_ylabel("Höhe [m]", fontsize=11)
+ax2.grid(True, alpha=0.5)
+
+plt.tight_layout()
+plt.show()
+
+#------------------------------------------
+#Ladeverlauf und Höhenverlauf plotten:
+
+height = elevation  
+
+for i in range(1, len(time)):
+    delta_t = time[i] - time[i-1]
+    strom_aktuell = current[i]
+
+    battery_lipo.apply_current(strom_aktuell, delta_t)
+
+soc_verlauf = battery_lipo.get_history()
+soc_verlauf.insert(0, 1.0)  #damit die länge der liste weiterhin richtig bleibt
+
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+
+ax1.plot(time, soc_verlauf, color="k", linewidth=1.5, label="Ladezustand")
+ax1.set_ylabel("Ladezustand (%)", fontsize=11)
+ax1.title.set_text("Ladezustand der Batterie")
+ax1.grid(True, alpha=0.5)   #macht das gitter ein wenig transparent weil sonst störts
+
+ax2.plot(time, height, color = "r", linewidth=2, label="Höhe")
 ax2.set_xlabel("Zeit [s]", fontsize=11)
 ax2.set_ylabel("Höhe [m]", fontsize=11)
 ax2.grid(True, alpha=0.5)
