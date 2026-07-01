@@ -18,10 +18,12 @@ def load_and_process_data(file_path):
     time_dt = time_str.astype('datetime64[ms]') #In ms um alle Nachkommastellen zu berücksichtigen
     time = time_dt.astype(float) / 1000.0 #Durch 1000 Teilen um Zeit in Sekunden zu erhalten
 
-    return { "lat": lat,"lon": lon,"ele": ele,"time": time,"temp": temp}
+    return { "lat": lat,"lon": lon,"ele": ele,"time": time,"temp": temp,"timedt": time_dt}
 
 if __name__ == "__main__":
     file = "final_project_input_data.csv"
     data_dict = load_and_process_data(file)
     
     print("Erste Temperaturwerte:", data_dict["temp"][:5])
+    print("Erste Zeitwerte:", data_dict["timedt"][:5])
+    

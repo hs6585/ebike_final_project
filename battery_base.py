@@ -34,8 +34,6 @@ class BatteryBase(ABC):
         """
         pass
 
-    
-    
     @abstractmethod
     def get_history(self) -> dict:
         

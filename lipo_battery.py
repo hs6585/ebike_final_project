@@ -1,6 +1,6 @@
 from battery_pack import BatteryPack
 
-class LiFePO4BatteryPack(BatteryPack):
+class LiPoBatteryPack(BatteryPack):
 
     def __init__(
         self,
@@ -38,7 +38,7 @@ class LiFePO4BatteryPack(BatteryPack):
         return U_oc - self.R_int * current
     
 if __name__ == "__main__":
-    lipo_akku = LiFePO4BatteryPack(capacity_nom_Ah=15.0)
+    lipo_akku = LiPoBatteryPack(capacity_nom_Ah=15.0)
 
     print(f"Start: {lipo_akku}")
     print(f"Spannung bei 20 Ampere: {lipo_akku.voltage(20.0)} V")
