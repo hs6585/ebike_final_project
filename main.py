@@ -2,37 +2,63 @@ import readGPSdata as gps
 from calc_data_from_gps import CalcDataFromGPS
 from motor import Motor
 from lipo_battery import LiFePO4BatteryPack
+from nmc_battery import NMCBatteryPack
 
-#Csv Datei mit der GPS-Messdatenreihe
+import matplotlib.pyplot as plt
+import numpy as np
+
+
 csv_file = "final_project_input_data.csv"
-
-#Messdaten als float in Dictionary speichern
 data_dict = gps.load_and_process_data(csv_file) 
 
-gpsdata = CalcDataFromGPS(data_dict) #Dictionary an GPS-Verarbeitungsklasse übergeben und Klasse initialisieren
-distance = gpsdata.calculate_distance() #Strecke in m berechnen
-velocity = gpsdata.calculate_speed() #Geschwindigkeit in m/s berechnen
-accelearation = gpsdata.calculate_acceleration() #Beschleunigung in m/s^2 berechnen
-incline_angle = gpsdata.calculate_incline_angle() #Steigungswinkel in ° berechnen
-drag_force = gpsdata.calculate_drag_force() #Luftwiderstandskraft in N berechnen
-driving_force = gpsdata.calculate_driving_force() #Antriebskraft in N berechnen
+gpsdata = CalcDataFromGPS(data_dict) 
+distance = gpsdata.calculate_distance()           
+velocity = gpsdata.calculate_speed()              
+accelearation = gpsdata.calculate_acceleration()   
+incline_angle = gpsdata.calculate_incline_angle() 
+drag_force = gpsdata.calculate_drag_force()        
+driving_force = gpsdata.calculate_driving_force() 
 
-motor = Motor() #Klasse Motor initialisieren
-power_mech = motor.calc_power_mech(driving_force, velocity[:-1]) #Mechanische Leistung in W berechnen
-torque = motor.calc_torque(driving_force) #Drehmoment in Nm berechnen
-current = motor.calc_current_motor(torque) #Motorstrom in A berechnen
 
-battery = LiFePO4BatteryPack(capacity_nom_Ah=100) #Kapazität übergeben und Klasse Batterypack initialisieren
-voltage = battery.voltage(current) #Spannung in V berechnen
-power_el = motor.calc_power_el(voltage, current) #Elektrische Leistung in W berechnen
+elevation = gpsdata.data_dict["ele"]
+time = gpsdata.data_dict["time"]    
+temp = gpsdata.data_dict["temp"]
 
-#Prints vorläufig nur zum testen
-print(f"Leistungsprofil mech: {power_mech[:4]}")
-print(f"Leistungsprofil ele: {power_el[:4]}")
-print(f"Antriebskraft: {driving_force[:4]}")
-print(f"Drehmoment: {torque[:4]}")
-print(f"Beschleunigung: {accelearation[:4]}")
-print(f"Geschwindigkeit: {velocity[:4]}")
-print(f"Strecke: {distance[:4]}")
-print(f"Strom:{current[:4]}")
 
+# Motor
+motor = Motor() 
+power_mech = motor.calc_power_mech(driving_force, velocity) 
+torque = motor.calc_torque(driving_force) 
+current = motor.calc_current_motor(torque) 
+
+#Batterie:
+battery_lipo = LiFePO4BatteryPack(capacity_nom_Ah=100) 
+battery_nmc = NMCBatteryPack(capacity_nom_Ah=100)
+voltage_lipo = battery_lipo.voltage(current) 
+voltage_nmc = battery_nmc.voltage(current) 
+power_el_lipo = motor.calc_power_el(voltage_lipo, current)
+power_el_nmc = motor.calc_power_el(voltage_nmc, current) 
+
+
+
+#Höhenverlauf und Leistungsverlauf plotten:
+
+x_axis = time 
+height = elevation  
+power = power_el_lipo 
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+
+
+ax1.plot(x_axis, power, color="k", linewidth=1.5, label="elektrische Leistung")
+ax1.set_ylabel("Leistung [W]", fontsize=11)
+ax1.title.set_text("Höhen- und Leistungsverlauf über die Zeit")
+ax1.grid(True, alpha=0.5)   #macht das gitter ein wenig transparent weil sonst störts
+
+ax2.plot(x_axis, height, color = "r", linewidth=2, label="Höhe")
+ax2.set_xlabel("Zeit [s]", fontsize=11)
+ax2.set_ylabel("Höhe [m]", fontsize=11)
+ax2.grid(True, alpha=0.5)
+
+plt.tight_layout()
+plt.show()

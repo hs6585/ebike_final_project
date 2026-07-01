@@ -25,3 +25,4 @@ if __name__ == "__main__":
     data_dict = load_and_process_data(file)
     
     print("Erste Temperaturwerte:", data_dict["temp"][:5])
+    
