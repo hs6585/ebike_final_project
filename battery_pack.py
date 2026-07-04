@@ -1,4 +1,11 @@
 from battery_base import BatteryBase
+import logging
+
+#Fehler logging
+logging.basicConfig(format="%(asctime)s:%(levelname)s: %(message)s",
+                    level=logging.WARNING,
+                    filename="simulation.log",
+                    filemode='w')
 
 class BatteryPack(BatteryBase):
 
@@ -20,13 +27,18 @@ class BatteryPack(BatteryBase):
         self.Vmin = Vmin
         self.Vmax = Vmax
         self.history = []
+        self.akku_warning_triggerd = False #Flag für Akkuwarnung
+        self.akkutype = "" #Akkubezeichnung für logging
+        self.timedt = 0.0 #Aktuelle Fahrtzeit von Simulation für logging
 
 
     def apply_current(self, current: float, duration: float) -> None:
         dsoc = -(current * duration) / self.C_nom
         self.soc = max(0.0, min(self.soc + dsoc, 1.0))
         soc_percent = self.soc*100  #in Prozent sieht im Plot danach besser aus
-
+        if soc_percent < 20.0 and not self.akku_warning_triggerd:
+            logging.warning(f"[Fahrtzeit: {self.timedt}] Kritischer Akkustand! Akkustand vom {self.akkutype} ist unter 20%")
+            self.akku_warning_triggerd = True
         self.history.append(soc_percent)
 
     def voltage(self, current: float = 0.0) -> float:
@@ -43,8 +55,10 @@ class BatteryPack(BatteryBase):
         #Hier wird der Verlauf der Batterie gespeichert, um danach die Daten plotten zu können
         return self.history
     
-    def simulate(self, time, current):
+    def simulate(self, time, current, akkutype, traveltime):
+        self.akkutype = akkutype #Übergabe des Akkutyps für logging
         for i in range(1, len(time)):
+            self.timedt = traveltime[i]
             delta_t = time[i] - time[i-1]
             strom_aktuell = current[i]
             self.apply_current(strom_aktuell, delta_t)

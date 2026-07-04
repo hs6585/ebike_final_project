@@ -4,9 +4,6 @@ from motor import Motor
 from lipo_battery import LiPoBatteryPack
 from nmc_battery import NMCBatteryPack
 import plots
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-
 
 
 csv_file = "final_project_input_data.csv" #CSV-Datei mit GPS-Messdatensatz
@@ -35,7 +32,7 @@ current = motor.calc_current_motor(torque) #Motorstrom in A
 
 #Batterie:
 battery_lipo = LiPoBatteryPack(capacity_nom_Ah=30) #Batterypack mit lipo Zellen 
-battery_nmc = NMCBatteryPack(capacity_nom_Ah=30) #Batterypack mit nmc Zellen
+battery_nmc = NMCBatteryPack(capacity_nom_Ah=35) #Batterypack mit nmc Zellen
 
 
 voltage_lipo = battery_lipo.voltage(current) #Spannung in V von lipo
@@ -43,16 +40,17 @@ voltage_nmc = battery_nmc.voltage(current) #Spannung in V von nmc
 power_el_lipo = motor.calc_power_el(voltage_lipo, current) #Elektrisches Leistungsprofil von lipo Batterypack
 power_el_nmc = motor.calc_power_el(voltage_nmc, current) #Elektrisches Leistungsprofil von nmc Batterypack
 
+lipo = "Lipo-Batterypack"
+nmc = "Nmc-Batterypack"
 
-plots.height_power_profile(timedt, elevation, power_el_lipo, "Lipo-Batterypack") #Leistungs -und Höhenverlauf eines Lipoakkus plotten
-plots.height_power_profile(timedt, elevation, power_el_nmc, "Nmc-Batterypack") #Leistungs -und Höhenverlauf eines Nmcakkus plotten
+plots.height_power_profile(timedt, elevation, power_el_lipo, lipo) #Leistungs -und Höhenverlauf eines Lipoakkus plotten
+plots.height_power_profile(timedt, elevation, power_el_nmc, nmc) #Leistungs -und Höhenverlauf eines Nmcakkus plotten
 
+soc_verlauf_lipo = battery_lipo.simulate(time, current, lipo, timedt) #soc Verlauf Lipoakku bestimmen
+plots.soc_profile(timedt, elevation, soc_verlauf_lipo, lipo) #Lade -und Höhenverlauf eines Lipoakkus plotten
 
-soc_verlauf_lipo = battery_lipo.simulate(time, current) #soc Verlauf Lipoakku bestimmen
-plots.soc_profile(timedt, elevation, soc_verlauf_lipo, "Lipo-Batterypack's") #Lade -und Höhenverlauf eines Lipoakkus plotten
-
-soc_verlauf_nmc = battery_nmc.simulate(time, current) #soc Verlauf Nmcakku bestimmen
-plots.soc_profile(timedt, elevation, soc_verlauf_nmc, "Nmc-Batterypack's") #Lade -und Höhenverlauf eines Nmcakkus plotten
+soc_verlauf_nmc = battery_nmc.simulate(time, current, nmc, timedt) #soc Verlauf Nmcakku bestimmen
+plots.soc_profile(timedt, elevation, soc_verlauf_nmc, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
 
 
 
