@@ -1,4 +1,5 @@
 from battery_base import BatteryBase
+import logging
 
 class BatteryPack(BatteryBase):
 
@@ -13,20 +14,24 @@ class BatteryPack(BatteryBase):
         #initial_soc wird auf 1 gesetzt, weil man bei 
         #der Simulation standartmäßig mit einem vollen Akku starten will.
         
-
+        self.C_nom_Ah = capacity_nom_Ah
         self.C_nom = capacity_nom_Ah * (60.0 * 60.0)    #umrechnen in SI-Einheit
         self.soc = max(0.0, min(initial_soc, 1.0))      #muss immer zwischen 0 und 1 sein
         self.R_int = internal_resistance_mOhm * 1e-3    #umrechnen in Ohm für SI_Einheiten
         self.Vmin = Vmin
         self.Vmax = Vmax
         self.history = []
-
+        self.akku_warning_triggerd = False #Flag für Akkuwarnung
+        self.akkutype = "" #Akkubezeichnung für logging
+        self.timedt = 0.0 #Aktuelle Fahrtzeit von Simulation für logging
 
     def apply_current(self, current: float, duration: float) -> None:
         dsoc = -(current * duration) / self.C_nom
         self.soc = max(0.0, min(self.soc + dsoc, 1.0))
         soc_percent = self.soc*100  #in Prozent sieht im Plot danach besser aus
-
+        if soc_percent < 20.0 and not self.akku_warning_triggerd:
+            logging.warning("[Fahrtzeit: %s] Kritischer Akkustand! Akkustand vom %s ist unter 20%%", self.timedt, self.akkutype) #Loggt den kritischen Akkustand
+            self.akku_warning_triggerd = True
         self.history.append(soc_percent)
 
     def voltage(self, current: float = 0.0) -> float:
@@ -43,14 +48,18 @@ class BatteryPack(BatteryBase):
         #Hier wird der Verlauf der Batterie gespeichert, um danach die Daten plotten zu können
         return self.history
     
-    def simulate(self, time, current):
+    def simulate(self, time, current, akkutype, traveltime):
+        self.akkutype = akkutype #Übergabe des Akkutyps für logging
+        logging.info("Starte %s Simulation", self.akkutype) #Loggt den Start der Simulation mit
         for i in range(1, len(time)):
+            self.timedt = traveltime[i]
             delta_t = time[i] - time[i-1]
             strom_aktuell = current[i]
             self.apply_current(strom_aktuell, delta_t)
-
+            
         soc_verlauf = self.get_history()
         soc_verlauf.insert(0, 1.0)  #damit die länge der liste weiterhin richtig bleibt
+        logging.info("Simulation erfolgreich beendet") #Logging für Ende der Simulation
         return soc_verlauf
 
     def __str__(self):
