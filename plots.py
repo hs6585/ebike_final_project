@@ -27,7 +27,7 @@ def soc_profile(time_dt, height, soc_verlauf, Akkutype:str):
 
     ax1.plot(time_dt, soc_verlauf, color="k", linewidth=1.5, label="Ladezustand")
     ax1.set_ylabel("Ladezustand [%]", fontsize=11)
-    ax1.title.set_text(f"Ladezustand und Höhenverlauf des {Akkutype}")
+    ax1.title.set_text(f"Ladezustand und Höhenverlauf mit einem {Akkutype}")
     ax1.grid(True, alpha=0.5)   #macht das gitter ein wenig transparent weil sonst störts
 
     ax2.plot(time_dt, height, color = "r", linewidth=2, label="Höhe")
