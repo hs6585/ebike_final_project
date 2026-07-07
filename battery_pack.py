@@ -24,6 +24,7 @@ class BatteryPack(BatteryBase):
         self.akku_warning_triggerd = False #Flag für Akkuwarnung
         self.akkutype = "" #Akkubezeichnung für logging
         self.timedt = 0.0 #Aktuelle Fahrtzeit von Simulation für logging
+        self.batempty = False
 
     def apply_current(self, current: float, duration: float) -> None:
         dsoc = -(current * duration) / self.C_nom
@@ -32,6 +33,8 @@ class BatteryPack(BatteryBase):
         if soc_percent < 20.0 and not self.akku_warning_triggerd:
             logging.warning("[Fahrtzeit: %s] Kritischer Akkustand! Akkustand vom %s ist unter 20%%", self.timedt, self.akkutype) #Loggt den kritischen Akkustand
             self.akku_warning_triggerd = True
+        if self.is_empty():
+            self.batempty = True
         self.history.append(soc_percent)
 
     def voltage(self, current: float = 0.0) -> float:
@@ -59,13 +62,14 @@ class BatteryPack(BatteryBase):
             
         soc_verlauf = self.get_history()
         soc_verlauf.insert(0, 1.0)  #damit die länge der liste weiterhin richtig bleibt
-        logging.info("Simulation erfolgreich beendet") #Logging für Ende der Simulation
+        if self.batempty:
+            logging.info("Simulation nicht erfolgreich beendet! Akku leer!") #Logging für Ende der Simulation
+        else:
+            logging.info("Simulation erfolgreich beendet") #Logging für Ende der Simulation
         return soc_verlauf
 
     def __str__(self):
         return f"BatteryPack(SoC={self.soc * 100:.1f}%, V={self.voltage():.2f} V)"
-
-
 
 
 if __name__ == "__main__":

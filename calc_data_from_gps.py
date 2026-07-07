@@ -8,13 +8,14 @@ class CalcDataFromGPS():
         self.lon = np.radians(data_dict["lon"])
         self.ele = data_dict["ele"]
         self.time = data_dict["time"]
-        
         self.s = None
         self.v = None
         self.a = None
         self.incline_angle = None
         self.F_D = None
         self.F_A = None
+        self.totaldis = 0
+        self.sec = 0
 
     def calculate_distance(self):
         """Berechnet die Teilstrecken zwischen den GPS-Punkten."""
@@ -71,6 +72,39 @@ class CalcDataFromGPS():
         
         self.F_A = F_acceleration + self.F_D + F_H
         return self.F_A 
+    
+    def calculate_vm(self):
+        """Berechnet die Durchschnitttsgeschwindigkeit"""
+        total_hours =  self.sec / 3600
+        return round(self.totaldis / total_hours, 2)
+    
+    def calculate_asc_des(self):
+        """Berechnet die Höhenmeter vom Aufstieg und Abstieg"""
+        delta_ele = np.diff(self.ele)
+        asc = np.sum(delta_ele[delta_ele > 0])
+        des = np.sum(delta_ele[delta_ele < 0]) * -1
+        return round(asc), round(des)
+    
+    def calculate_maxpow(self, power):
+        """Berechnet die Maximalleistung"""
+        real_max_power = np.percentile(power, 99) #Es wird das 99. Perzentil genommen, das ignoriert die obersten 1% der Messspitzen
+        return round(float(real_max_power), 2)
+    
+    def calculate_total_dis(self):
+        """Berechnet die zurückgelegte Strecke im 3D Raum"""
+        s_sliced = self.s[1:]
+        delta_ele = np.diff(self.ele)
+        segments_3d = np.sqrt(s_sliced**2 + delta_ele**2) #Pythagoras anwenden
+        total_3d_dis = np.sum(segments_3d)  #Aufsummieren und in Kilometer umrechnen
+        self.totaldis = round(float(total_3d_dis) / 1000, 2)
+        return self.totaldis
+    
+    def calculate_total_time(self):
+        """Berechnet die gesamte benötigte Zeit"""
+        self.sec = self.time[-1] - self.time[0] #Gesamtzeit berechnen
+        h = int(self.sec / 3600)
+        m = round((self.sec % 3600) // 60)
+        return (h, m)
         
 if __name__ == "__main__":
 
