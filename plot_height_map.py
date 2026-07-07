@@ -26,8 +26,8 @@ def height_map(data_dict):
     gdf = gpd.GeoDataFrame(data, crs="EPSG:4326")
 
     #Plot
-    gdf.plot(column='Hoehe', cmap='plasma', linewidth=3)
-    plt.show()
+    #gdf.plot(column='Hoehe', cmap='plasma', linewidth=3)
+    #plt.show()
     #es ergibt wenig Sinn es als Plot zu machen weil man sich nichts drunter vorstellen kann
 
     #Karte wird als Datei gespeichert
@@ -35,7 +35,7 @@ def height_map(data_dict):
     karte_fertig = "height_map.html"
     karte.save(karte_fertig)
 
-    print("Karte wurde im Ornder gespeichert")
+    print("Höhenkarte wurde im Ornder gespeichert")
 
 if __name__ == "__main__":
 

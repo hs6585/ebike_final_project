@@ -10,6 +10,7 @@ from motor import Motor
 from lipo_battery import LiPoBatteryPack
 from nmc_battery import NMCBatteryPack
 import plots
+import plot_height_map
 
 csv_file = "final_project_input_data.csv" #CSV-Datei mit GPS-Messdatensatz
 data_dict = gps.load_and_process_data(csv_file) #Dictionary mit GPS-Daten als float
@@ -57,6 +58,8 @@ plots.soc_profile(timedt, elevation, soc_verlauf_lipo, lipo) #Lade -und Höhenve
 
 soc_verlauf_nmc = battery_nmc.simulate(time, current, nmc, timedt) #soc Verlauf Nmcakku bestimmen
 plots.soc_profile(timedt, elevation, soc_verlauf_nmc, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
+
+plot_height_map.height_map(data_dict)   #Die Höhenkarte über die Fahrt
 
 h, m = gpsdata.calculate_total_time() #Berechnet Stunden und Minuten der Gesamtfahrtzeit 
 logging.info("Gesamtfahrzeit: %sh%smin", h, m) #Logging für Gesamtzeit
