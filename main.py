@@ -58,12 +58,22 @@ plots.soc_profile(timedt, elevation, soc_verlauf_lipo, lipo) #Lade -und Höhenve
 soc_verlauf_nmc = battery_nmc.simulate(time, current, nmc, timedt) #soc Verlauf Nmcakku bestimmen
 plots.soc_profile(timedt, elevation, soc_verlauf_nmc, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
 
-s = time[-1] - time[0] #Gesamtzeit berechnen
-h = int(s / 3600)
-m = round((s % 3600) / 60)
+h, m = gpsdata.calculate_total_time() #Berechnet Stunden und Minuten der Gesamtfahrtzeit 
 logging.info("Gesamtfahrzeit: %sh%smin", h, m) #Logging für Gesamtzeit
-logging.info("Zurueckgelegte Strecke: %skm", round((sum(distance)/1000),2)) #Logging für Gesamtstrecke
+
+totaldis = gpsdata.calculate_total_dis() #Berechnet die totale Distanz
+logging.info("Zurueckgelegte Strecke: %skm", totaldis) #Logging für Gesamtstrecke
+
 logging.info("Restakku: %s(%s%%), %s(%s%%)", lipo, round(soc_verlauf_lipo[-1], 2), nmc, round(soc_verlauf_nmc[-1], 2)) #Logging für Restakku
+
+vm = gpsdata.calculate_vm() #Berechnet die mittlere Geschwindigkeit
+logging.info("Mittlere Geschwindigkeit: %sm/s", vm) #Logging für mittlere Geschwindigkeit
+             
+asc, des = gpsdata.calculate_asc_des() #Berechnet den Anstieg und Abstieg 
+logging.info("Hoehenmeter: Aufstieg(%sm), Abstieg:(%sm)", asc, des) #Logging für Höhenmeter Anstieg und Abstieg
+
+maxpow = gpsdata.calculate_maxpow(power_mech) #Berechnet die maximale mechanische Leistung. Es wird nur 99% angeschaut die 1% der Spitzen werden dabei vernachlässigt.
+logging.info("Maximale Leistung: %sW", maxpow) #Logging für maximale Leistung
 
 
 
