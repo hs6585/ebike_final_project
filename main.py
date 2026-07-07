@@ -39,7 +39,7 @@ lipo = "Lipo-Batterypack"
 nmc = "Nmc-Batterypack"
 
 #Batterie:
-battery_lipo = LiPoBatteryPack(capacity_nom_Ah=60) #Batterypack mit lipo Zellen 
+battery_lipo = LiPoBatteryPack(capacity_nom_Ah=25) #Batterypack mit lipo Zellen 
 battery_nmc = NMCBatteryPack(capacity_nom_Ah=35) #Batterypack mit nmc Zellen
 
 voltage_lipo = battery_lipo.voltage(current) #Spannung in V von lipo
