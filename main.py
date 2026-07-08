@@ -11,6 +11,7 @@ from lipo_battery import LiPoBatteryPack
 from nmc_battery import NMCBatteryPack
 import plots
 import plot_height_map
+import study
 
 csv_file = "final_project_input_data.csv" #CSV-Datei mit GPS-Messdatensatz
 data_dict = gps.load_and_process_data(csv_file) #Dictionary mit GPS-Daten als float
@@ -40,8 +41,8 @@ lipo = "Lipo-Batterypack"
 nmc = "Nmc-Batterypack"
 
 #Batterie:
-battery_lipo = LiPoBatteryPack(capacity_nom_Ah=25) #Batterypack mit lipo Zellen 
-battery_nmc = NMCBatteryPack(capacity_nom_Ah=35) #Batterypack mit nmc Zellen
+battery_lipo = LiPoBatteryPack(capacity_nom_Ah=30) #Batterypack mit lipo Zellen 
+battery_nmc = NMCBatteryPack(capacity_nom_Ah=30) #Batterypack mit nmc Zellen
 
 voltage_lipo = battery_lipo.voltage(current) #Spannung in V von lipo
 voltage_nmc = battery_nmc.voltage(current) #Spannung in V von nmc
@@ -58,6 +59,9 @@ plots.soc_profile(timedt, elevation, soc_verlauf_lipo, lipo) #Lade -und Höhenve
 
 soc_verlauf_nmc = battery_nmc.simulate(time, current, nmc, timedt) #soc Verlauf Nmcakku bestimmen
 plots.soc_profile(timedt, elevation, soc_verlauf_nmc, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
+
+#Studie Radradius aus study.py
+study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
 
 plot_height_map.height_map(data_dict)   #Die Höhenkarte über die Fahrt
 
