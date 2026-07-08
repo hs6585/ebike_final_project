@@ -1,0 +1,44 @@
+@startuml
+start
+note left
+  E-Bike Simulation
+  Parameter: GPS-Messdatensatz (CSV)
+  Anforderung: CSV-Datei vorhanden & lesbar
+  Zusicherung: Verlaufsgrafiken erstellt & Statistiken geloggt
+  Hilfsgrößen: CalcDataFromGPS, Motor, LiPoBatteryPack, NMCBatteryPack
+end note
+
+:Logging konfigurieren und initialisieren;
+:GPS-Daten aus CSV-Datei einlesen;
+
+:Kinematische & fahrphysikalische Profile berechnen
+(Distanz, Geschwindigkeit, Beschleunigung, Steigungsinkel, Kräfte);
+
+:Mechanische Motordaten berechnen
+(Leistung mech., Drehmoment, Motorstrom);
+
+:Batterie-Packs initialisieren
+(LiPo: 25Ah | NMC: 35Ah);
+
+:Spannung und elektrische Leistung bestimmen;
+:Ausgangsleistung im Log dokumentieren;
+
+:Leistungs- und Höhenverläufe beider Akkus plotten;
+
+partition "LiPo-Batterie Simulation" {
+    :SoC-Verlauf für LiPo bestimmen;
+    :Lade- und Höhenverlauf (LiPo) plotten;
+}
+
+partition "NMC-Batterie Simulation" {
+    :SoC-Verlauf für NMC bestimmen;
+    :Lade- und Höhenverlauf (NMC) plotten;
+}
+
+:Gesamtfahrzeit & Gesamtstrecke berechnen;
+:Mittlere Geschwindigkeit & Höhenmeter (Auf-/Abstieg) ermitteln;
+:Maximale mechanische Leistung bestimmen;
+
+:Alle finalen Statistiken & Restakku-Stände loggen;
+stop
+@enduml
