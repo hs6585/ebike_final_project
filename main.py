@@ -25,6 +25,7 @@ accelearation = gpsdata.calculate_acceleration() #Beschleunigung in m/s^2
 incline_angle = gpsdata.calculate_incline_angle() #Steigungswinkel in °
 drag_force = gpsdata.calculate_drag_force() #Luftwiderstandskraft in N       
 driving_force = gpsdata.calculate_driving_force() #Antriebskraft in N
+compass_direction = gpsdata.calculate_compass_direction() #Himmelsrichtung
 
 elevation = gpsdata.data_dict["ele"] #Höhenprofil
 time = gpsdata.data_dict["time"] #Zeitprofil in Sekunden
@@ -62,6 +63,8 @@ plots.soc_profile(timedt, elevation, soc_verlauf_nmc, nmc) #Lade -und Höhenverl
 
 #Studie Radradius aus study.py
 study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
+
+plots.compass_direction_plot(data_dict, compass_direction)
 
 plot_height_map.height_map(data_dict)   #Die Höhenkarte über die Fahrt
 
