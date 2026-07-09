@@ -83,6 +83,9 @@ def soc_profile(time_dt, height, soc_verlauf, Akkutype:str):
 
 def compass_direction_plot(data_dict, compass_direction):
 
+    'Dieser Plot ist unnötig, da er sehr unübersichtlich ist. ich habe die Himmelsrichtung statdessen'
+    'in die height_map hinzugefügt. Man sieht sie, wenn man mit der Maus über die Strecke geht'
+
     lat_list = data_dict['lat']
     lon_list = data_dict['lon']
 
