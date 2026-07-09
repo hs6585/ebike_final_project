@@ -16,6 +16,7 @@ class CalcDataFromGPS():
         self.F_A = None
         self.totaldis = 0
         self.sec = 0
+        self.himmelsrichtung = 0
 
     def calculate_distance(self):
         """Berechnet die Teilstrecken zwischen den GPS-Punkten."""
@@ -105,6 +106,31 @@ class CalcDataFromGPS():
         h = int(self.sec / 3600)
         m = round((self.sec % 3600) // 60)
         return (h, m)
+
+    def calculate_compass_direction(self):
+        """Berechnet die Himmelsrichtungen"""
+        
+        delta_lon = np.diff(self.lon)   #Längengrad Differenz
+        
+        #Formel für Peilung auf einer Kugel
+        x = np.sin(delta_lon) * np.cos(self.lat[1:])
+        y = np.cos(self.lat[:-1]) * np.sin(self.lat[1:]) - (np.sin(self.lat[:-1]) * np.cos(self.lat[1:]) * np.cos(delta_lon))
+        
+        
+        radiants = np.arctan2(x, y)  #schauen in welchem Quadrant
+        grad = (np.degrees(radiants) + 360) % 360   #in Grad umwandeln und schauen dass es positiv ist
+        
+        richtungen = np.array(["N", "NO", "O", "SO", "S", "SW", "W", "NW"]) #alle Himmelsrichtungen
+        
+        # schauen dass der Bereich schön um z.b. Norden liegt und dann die richtige aus der Liste rausnehmen
+        indices = ((grad + 22.5) / 45).astype(int) % 8
+        himmelsrichtungen = richtungen[indices]
+        
+        #erste berechnete Himmelsrichtung als erste Stelle festlegen, damit dnach die Länge stimmt
+        self.himmelsrichtung = np.insert(himmelsrichtungen, 0, himmelsrichtungen[0])
+        
+        return self.himmelsrichtung
+    
         
 if __name__ == "__main__":
 
@@ -128,6 +154,9 @@ if __name__ == "__main__":
     print("Erste Luftwiderstandskraft in N:", (F_D[0]))
     F_A = x.calculate_driving_force()
     print("Erste Antriebskraft in N:", (F_A[0]))
+
+    h = x.calculate_compass_direction()
+    print(h[0])
     
 
 

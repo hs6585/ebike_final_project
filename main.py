@@ -21,10 +21,12 @@ logging.info("Eingelesener GPS-Datensatz: %s", csv_file) #Logging für CSV-Datei
 gpsdata = CalcDataFromGPS(data_dict) #Initialisierung der Klasse CalcDataFromGPS
 distance = gpsdata.calculate_distance() #Strecke in m       
 velocity = gpsdata.calculate_speed() #Geschwindigkeit in m/s
+velocity_kmh = gpsdata.calculate_speed() * 3.6
 accelearation = gpsdata.calculate_acceleration() #Beschleunigung in m/s^2
 incline_angle = gpsdata.calculate_incline_angle() #Steigungswinkel in °
 drag_force = gpsdata.calculate_drag_force() #Luftwiderstandskraft in N       
 driving_force = gpsdata.calculate_driving_force() #Antriebskraft in N
+compass_direction = gpsdata.calculate_compass_direction() #Himmelsrichtung
 
 elevation = gpsdata.data_dict["ele"] #Höhenprofil
 time = gpsdata.data_dict["time"] #Zeitprofil in Sekunden
@@ -51,17 +53,22 @@ logging.info("Setup: %s(%sWh), %s(%sWh)", lipo, round(battery_lipo.C_nom_Ah * ba
 power_el_lipo = motor.calc_power_el(voltage_lipo, current) #Elektrisches Leistungsprofil von lipo Batterypack
 power_el_nmc = motor.calc_power_el(voltage_nmc, current) #Elektrisches Leistungsprofil von nmc Batterypack
 
-plots.height_power_profile(timedt, elevation, power_el_lipo, lipo) #Leistungs -und Höhenverlauf eines Lipoakkus plotten
-plots.height_power_profile(timedt, elevation, power_el_nmc, nmc) #Leistungs -und Höhenverlauf eines Nmcakkus plotten
+plots.height_profile(timedt, elevation) #Höhenprofil alleine
+plots.velocity_height_profile(timedt, elevation, velocity_kmh)  #Geschwindigkeits und Höhenverlauf übereinander
+
+#plots.height_power_profile(timedt, elevation, power_el_lipo, lipo) #Leistungs -und Höhenverlauf eines Lipoakkus plotten
+#plots.height_power_profile(timedt, elevation, power_el_nmc, nmc) #Leistungs -und Höhenverlauf eines Nmcakkus plotten
 
 soc_verlauf_lipo = battery_lipo.simulate(time, current, lipo, timedt) #soc Verlauf Lipoakku bestimmen
-plots.soc_profile(timedt, elevation, soc_verlauf_lipo, lipo) #Lade -und Höhenverlauf eines Lipoakkus plotten
+#plots.soc_profile(timedt, elevation, soc_verlauf_lipo, lipo) #Lade -und Höhenverlauf eines Lipoakkus plotten
 
 soc_verlauf_nmc = battery_nmc.simulate(time, current, nmc, timedt) #soc Verlauf Nmcakku bestimmen
-plots.soc_profile(timedt, elevation, soc_verlauf_nmc, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
+#plots.soc_profile(timedt, elevation, soc_verlauf_nmc, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
 
 #Studie Radradius aus study.py
-study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
+#study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
+
+plots.compass_direction_plot(data_dict, compass_direction)
 
 plot_height_map.height_map(data_dict)   #Die Höhenkarte über die Fahrt
 
