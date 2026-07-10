@@ -56,21 +56,23 @@ power_el_nmc = motor.calc_power_el(voltage_nmc, current) #Elektrisches Leistungs
 plots.height_profile(timedt, elevation) #Höhenprofil alleine
 plots.velocity_height_profile(timedt, elevation, velocity_kmh)  #Geschwindigkeits und Höhenverlauf übereinander
 
-#plots.height_power_profile(timedt, elevation, power_el_lipo, lipo) #Leistungs -und Höhenverlauf eines Lipoakkus plotten
-#plots.height_power_profile(timedt, elevation, power_el_nmc, nmc) #Leistungs -und Höhenverlauf eines Nmcakkus plotten
+plots.height_power_profile(timedt, elevation, power_el_lipo, lipo) #Leistungs -und Höhenverlauf eines Lipoakkus plotten
+plots.height_power_profile(timedt, elevation, power_el_nmc, nmc) #Leistungs -und Höhenverlauf eines Nmcakkus plotten
 
 soc_verlauf_lipo = battery_lipo.simulate(time, current, lipo, timedt) #soc Verlauf Lipoakku bestimmen
-#plots.soc_profile(timedt, elevation, soc_verlauf_lipo, lipo) #Lade -und Höhenverlauf eines Lipoakkus plotten
+plots.soc_profile(timedt, elevation, soc_verlauf_lipo, lipo) #Lade -und Höhenverlauf eines Lipoakkus plotten
 
 soc_verlauf_nmc = battery_nmc.simulate(time, current, nmc, timedt) #soc Verlauf Nmcakku bestimmen
-#plots.soc_profile(timedt, elevation, soc_verlauf_nmc, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
+plots.soc_profile(timedt, elevation, soc_verlauf_nmc, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
 
 #Studie Radradius aus study.py
-#study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
+study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
 
-plots.compass_direction_plot(data_dict, compass_direction)
+#unübersichtilicher Plot, habe dir Himmelsrichtung bei height_map hinzugefügt, wenn 
+# man mit der Maus drüber fährt dieht man sie
+#plots.compass_direction_plot(data_dict, compass_direction)
 
-plot_height_map.height_map(data_dict)   #Die Höhenkarte über die Fahrt
+plot_height_map.height_map(data_dict, compass_direction)   #Die Höhenkarte über die Fahrt
 
 h, m = gpsdata.calculate_total_time() #Berechnet Stunden und Minuten der Gesamtfahrtzeit 
 logging.info("Gesamtfahrzeit: %sh%smin", h, m) #Logging für Gesamtzeit
