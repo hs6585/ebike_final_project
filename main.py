@@ -69,8 +69,12 @@ plots.soc_profile(timedt, elevation, sim_nmc.soc_profile, nmc) #Lade -und Höhen
 #Studie Radradius aus study.py
 study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
 
-plots.compass_direction_plot(data_dict, compass_direction)
-plot_height_map.height_map(data_dict)   #Die Höhenkarte über die Fahrt
+
+#unübersichtilicher Plot, habe dir Himmelsrichtung bei height_map hinzugefügt, wenn 
+# man mit der Maus drüber fährt sieht man sie
+#plots.compass_direction_plot(data_dict, compass_direction)
+
+plot_height_map.height_map(data_dict, compass_direction)   #Die Höhenkarte über die Fahrt
 
 h, m = gpsdata.calculate_total_time() #Berechnet Stunden und Minuten der Gesamtfahrtzeit 
 logging.info("Gesamtfahrzeit: %sh%smin", h, m) #Logging für Gesamtzeit
