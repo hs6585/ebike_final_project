@@ -67,7 +67,7 @@ plots.soc_profile(timedt, elevation, sim_lipo.soc_profile, lipo) #Lade -und Höh
 plots.soc_profile(timedt, elevation, sim_nmc.soc_profile, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
 
 #Studie Radradius aus study.py
-#study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
+study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
 
 plots.compass_direction_plot(data_dict, compass_direction)
 plot_height_map.height_map(data_dict)   #Die Höhenkarte über die Fahrt
