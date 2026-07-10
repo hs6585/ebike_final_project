@@ -4,12 +4,11 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 from motor import Motor
-from lipo_battery import LiPoBatteryPack
+from lipo_battery import LiPoBatteryPack  # Wird für die Batterie-Instanziierung benötigt
 import calc_data_from_gps as gps
 from calc_data_from_gps import CalcDataFromGPS
 from readGPSdata import load_and_process_data
-
-
+from ebike_simulator import EBikeSimluator
 
 
 def wheel_study(data_dict, radius_standard, radius_groß, Akkutype:str):
@@ -26,38 +25,41 @@ def wheel_study(data_dict, radius_standard, radius_groß, Akkutype:str):
     motor_small = Motor(1.5, radius_standard)
     motor_big = Motor(1.5, radius_groß)
 
-    #Batterie:
-    akku_small = LiPoBatteryPack(capacity_nom_Ah=30.0)
-    akku_big = LiPoBatteryPack(capacity_nom_Ah=30.0)
+    #Batterie-Objekte erstellen, da der EBikeSimluator diese zwingend im Konstruktor erwartet
+    battery_small = LiPoBatteryPack(capacity_nom_Ah=30)
+    battery_big = LiPoBatteryPack(capacity_nom_Ah=30)
 
+    #Simulatoren korrekt initialisieren (mit Batterie und Motor)
+    akku_small = EBikeSimluator(battery_small, motor_small)
+    akku_big = EBikeSimluator(battery_big, motor_big)
 
-    soc_verlauf_small = []
-    soc_verlauf_big = []
-
-    
     force = gps_data.calculate_driving_force()  #Antriebskraft
 
     time = gps_data.data_dict['time']
     time_dt = gps_data.data_dict['timedt']
 
-    #Verlauf mit kleinem Rad
-    torque_small = motor_small.calc_torque(force)
-    current_small = motor_small.calc_current_motor(torque_small)
-    simulation_small = akku_small.simulate(time, current_small, Akkutype, time_dt)
-    soc_verlauf_small.append(simulation_small)
+    # Delta-Zeitprofil berechnen (wie in main.py benötigt für das Lastprofil)
+    duration_profile = np.diff(time)
 
-    #Verlauf mit großem Rad
+    #Verlauf mit kleinem Rad simulieren
+    torque_small = motor_small.calc_torque(force)
+    # Da duration_profile um 1 kürzer ist als time, übergeben wir time_dt[:-1] für das Logging
+    akku_small.simulate(torque_small, duration_profile, time_dt[:-1], Akkutype)
+    soc_verlauf_small = akku_small.soc_profile
+
+    #Verlauf mit großem Rad simulieren
     torque_big = motor_big.calc_torque(force)
     current_big = motor_big.calc_current_motor(torque_big)
-    simulation_big = akku_big.simulate(time, current_big, Akkutype, time_dt)
-    soc_verlauf_big.append(simulation_big)
+    akku_big.simulate(torque_big, duration_profile, time_dt[:-1], Akkutype)
+    soc_verlauf_big = akku_big.soc_profile
 
 
     #Plotten:
     plt.figure(figsize=(10, 6))
 
-    plt.plot(time_dt, soc_verlauf_small[0], color = "k", label = "Standard Radradius")
-    plt.plot(time_dt, soc_verlauf_big[0], color = "r", label = "großer Radradius")
+    # Die x-Achse wird ebenfalls auf time_dt[:-1] angepasst, da das SoC-Profil der simulierten Schritte entspricht
+    plt.plot(time_dt, soc_verlauf_small, color = "k", label = "Standard Radradius")
+    plt.plot(time_dt, soc_verlauf_big, color = "r", label = "großer Radradius")
 
 
     # X-Achse in Uhrzeit formatiern
