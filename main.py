@@ -9,9 +9,11 @@ from calc_data_from_gps import CalcDataFromGPS
 from motor import Motor
 from lipo_battery import LiPoBatteryPack
 from nmc_battery import NMCBatteryPack
+from ebike_simulator import EBikeSimluator
 import plots
 import plot_height_map
 import study
+import numpy as np
 
 csv_file = "final_project_input_data.csv" #CSV-Datei mit GPS-Messdatensatz
 data_dict = gps.load_and_process_data(csv_file) #Dictionary mit GPS-Daten als float
@@ -37,39 +39,37 @@ temp = gpsdata.data_dict["temp"] #Temperatur
 motor = Motor() #Initialisierung der Klasse Motor
 power_mech = motor.calc_power_mech(driving_force, velocity) #Mechanisches Leistungsprofil in W
 torque = motor.calc_torque(driving_force) #Drehmoment in Nm
-current = motor.calc_current_motor(torque) #Motorstrom in A
 
 lipo = "Lipo-Batterypack"
 nmc = "Nmc-Batterypack"
 
 #Batterie:
 battery_lipo = LiPoBatteryPack(capacity_nom_Ah=30) #Batterypack mit lipo Zellen 
-battery_nmc = NMCBatteryPack(capacity_nom_Ah=30) #Batterypack mit nmc Zellen
+battery_nmc = NMCBatteryPack(capacity_nom_Ah=20) #Batterypack mit nmc Zellen
 
-voltage_lipo = battery_lipo.voltage(current) #Spannung in V von lipo
-voltage_nmc = battery_nmc.voltage(current) #Spannung in V von nmc
 logging.info("Setup: %s(%sWh), %s(%sWh)", lipo, round(battery_lipo.C_nom_Ah * battery_lipo.voltage(0)), nmc, round(battery_nmc.C_nom_Ah * battery_nmc.voltage(0))) #Loggt die Ausgangsleistung der beiden Akkus mit
 
-power_el_lipo = motor.calc_power_el(voltage_lipo, current) #Elektrisches Leistungsprofil von lipo Batterypack
-power_el_nmc = motor.calc_power_el(voltage_nmc, current) #Elektrisches Leistungsprofil von nmc Batterypack
+#Simulation:
+sim_lipo = EBikeSimluator(battery_lipo, motor) #Simulations Klasse für Lipo-Akkupack initialisieren
+sim_nmc = EBikeSimluator(battery_nmc, motor) #Simulations Klasse für Nmc-Akkupack initialisieren
+
+duration_profile = np.diff(time)# Delta Time Profile berechnen
+sim_lipo.simulate(torque, duration_profile, timedt, lipo) #Simulation für Lipo-Akkupack
+sim_nmc.simulate(torque, duration_profile, timedt, nmc) #Simulation für Nmc-Akkupack
 
 plots.height_profile(timedt, elevation) #Höhenprofil alleine
 plots.velocity_height_profile(timedt, elevation, velocity_kmh)  #Geschwindigkeits und Höhenverlauf übereinander
 
-#plots.height_power_profile(timedt, elevation, power_el_lipo, lipo) #Leistungs -und Höhenverlauf eines Lipoakkus plotten
-#plots.height_power_profile(timedt, elevation, power_el_nmc, nmc) #Leistungs -und Höhenverlauf eines Nmcakkus plotten
+plots.height_power_profile(timedt[:-1], elevation[:-1], sim_lipo.power_el_profile, lipo) #Leistungs -und Höhenverlauf eines Lipoakkus plotten
+plots.height_power_profile(timedt[:-1], elevation[:-1], sim_nmc.power_el_profile, nmc) #Leistungs -und Höhenverlauf eines Nmcakkus plotten
 
-soc_verlauf_lipo = battery_lipo.simulate(time, current, lipo, timedt) #soc Verlauf Lipoakku bestimmen
-#plots.soc_profile(timedt, elevation, soc_verlauf_lipo, lipo) #Lade -und Höhenverlauf eines Lipoakkus plotten
-
-soc_verlauf_nmc = battery_nmc.simulate(time, current, nmc, timedt) #soc Verlauf Nmcakku bestimmen
-#plots.soc_profile(timedt, elevation, soc_verlauf_nmc, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
+plots.soc_profile(timedt, elevation, sim_lipo.soc_profile, lipo) #Lade -und Höhenverlauf eines Lipoakkus plotten
+plots.soc_profile(timedt, elevation, sim_nmc.soc_profile, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
 
 #Studie Radradius aus study.py
 #study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
 
 plots.compass_direction_plot(data_dict, compass_direction)
-
 plot_height_map.height_map(data_dict)   #Die Höhenkarte über die Fahrt
 
 h, m = gpsdata.calculate_total_time() #Berechnet Stunden und Minuten der Gesamtfahrtzeit 
@@ -78,7 +78,7 @@ logging.info("Gesamtfahrzeit: %sh%smin", h, m) #Logging für Gesamtzeit
 totaldis = gpsdata.calculate_total_dis() #Berechnet die totale Distanz
 logging.info("Zurueckgelegte Strecke: %skm", totaldis) #Logging für Gesamtstrecke
 
-logging.info("Restakku: %s(%s%%), %s(%s%%)", lipo, round(soc_verlauf_lipo[-1], 2), nmc, round(soc_verlauf_nmc[-1], 2)) #Logging für Restakku
+logging.info("Restakku: %s(%s%%), %s(%s%%)", lipo, round(battery_lipo.soc*100, 2), nmc, round(battery_nmc.soc*100, 2)) #Logging für Restakku
 
 vm = gpsdata.calculate_vm() #Berechnet die mittlere Geschwindigkeit
 logging.info("Mittlere Geschwindigkeit: %sm/s", vm) #Logging für mittlere Geschwindigkeit
