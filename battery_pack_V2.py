@@ -8,12 +8,13 @@ class BatteryPack(BatteryBase):
         initial_soc: float = 1.0,
         Vmin: float = 3.0,
         Vmax: float = 4.2,
+        cells_in_parallel: int = 1,
     ):
 
-        self.C_nom_Ah = capacity_nom_Ah
-        self.C_nom = capacity_nom_Ah * (60.0 * 60.0)
+        self.C_nom_Ah = capacity_nom_Ah * cells_in_parallel
+        self.C_nom = self.C_nom_Ah * (60.0 * 60.0)
         self.soc = max(0.0, min(initial_soc, 1.0))
-        self.R_int = internal_resistance_mOhm * 1e-3
+        self.R_int = (internal_resistance_mOhm * 1e-3) / cells_in_parallel
         self.Vmin = Vmin
         self.Vmax = Vmax
 
@@ -35,5 +36,8 @@ class BatteryPack(BatteryBase):
         return f"BatteryPack(SoC={self.soc * 100:.1f}%, V={self.voltage():.2f} V)"
 
 if __name__ == "__main__":
-    akku = BatteryPack(capacity_nom_Ah=20)
+    akku = BatteryPack(capacity_nom_Ah=20, cells_in_parallel=2)
+    print(akku)
+    akku.apply_current(50, 300)
+    akku.voltage(20)
     print(akku)
