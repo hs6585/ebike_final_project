@@ -72,7 +72,7 @@ def wheel_study(data_dict, radius_standard, radius_groß, Akkutype:str):
     plt.legend()
 
     plt.tight_layout()
-    plt.show()
+
 
       
 
