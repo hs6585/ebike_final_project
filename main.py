@@ -27,7 +27,8 @@ velocity = gpsdata.calculate_speed() #Geschwindigkeit in m/s
 velocity_kmh = gpsdata.calculate_speed() * 3.6
 accelearation = gpsdata.calculate_acceleration() #Beschleunigung in m/s^2
 incline_angle = gpsdata.calculate_incline_angle() #Steigungswinkel in °
-drag_force = gpsdata.calculate_drag_force() #Luftwiderstandskraft in N       
+rho = gpsdata.calculate_air_density()
+drag_force = gpsdata.calculate_drag_force(rho, 0.5625) #Luftwiderstandskraft in N       
 driving_force = gpsdata.calculate_driving_force() #Antriebskraft in N
 compass_direction = gpsdata.calculate_compass_direction() #Himmelsrichtung
 
@@ -75,6 +76,8 @@ plots.plot_voltage_and_current_profile(sim_nmc.voltage_profile, sim_nmc.current_
 study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
 
 plot_height_map.height_map(data_dict, compass_direction)   #Die Höhenkarte über die Fahrt
+
+plots.plot_air_density(timedt, elevation, rho)
 
 #damit alle Plots gleichzeitig öffnen und man sie mit esc wieder schließen kann
 def close_all_plots(event):

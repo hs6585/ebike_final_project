@@ -130,3 +130,22 @@ def plot_voltage_and_current_profile(voltage_profile: list[float], current_profi
     fig.legend(loc="upper right", bbox_to_anchor=(0.85, 0.85))
 
 
+def plot_air_density(time_dt, height, rho):
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+
+    ax1.plot(time_dt, rho, color="k", linewidth=1.5, label="Luftdichte")
+    ax1.set_ylabel("Luftdichte", fontsize=11)
+    ax1.title.set_text(f"Luftdichte in Abhängigkeit der Höhe")
+    ax1.grid(True, alpha=0.5)   #macht das gitter ein wenig transparent
+
+    ax2.plot(time_dt, height, color = "r", linewidth=2, label="Höhe")
+    ax2.set_xlabel("Uhrzeit", fontsize=11)
+    ax2.set_ylabel("Höhe [m]", fontsize=11)
+    ax2.grid(True, alpha=0.5)
+
+    # X-Achse in Stunde:Minute formatiern
+    ax2.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+
+    plt.tight_layout()
+
