@@ -14,6 +14,7 @@ import plots
 import plot_height_map
 import study
 import numpy as np
+import matplotlib.pyplot as plt
 
 csv_file = "final_project_input_data.csv" #CSV-Datei mit GPS-Messdatensatz
 data_dict = gps.load_and_process_data(csv_file) #Dictionary mit GPS-Daten als float
@@ -70,11 +71,21 @@ plots.soc_profile(timedt, elevation, sim_nmc.soc_profile, nmc) #Lade -und Höhen
 study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
 
 
-#unübersichtilicher Plot, habe dir Himmelsrichtung bei height_map hinzugefügt, wenn 
-# man mit der Maus drüber fährt sieht man sie
-#plots.compass_direction_plot(data_dict, compass_direction)
-
 plot_height_map.height_map(data_dict, compass_direction)   #Die Höhenkarte über die Fahrt
+
+
+#damit alle Plots gleichzeitig öffnen und man sie mit esc wieder schließen kann
+def close_all_plots(event):
+    if event.key == 'escape':
+        plt.close('all')
+
+for fig_num in plt.get_fignums():
+    fig = plt.figure(fig_num)
+    fig.canvas.mpl_connect('key_press_event', close_all_plots)
+
+plt.show()
+
+
 
 h, m = gpsdata.calculate_total_time() #Berechnet Stunden und Minuten der Gesamtfahrtzeit 
 logging.info("Gesamtfahrzeit: %sh%smin", h, m) #Logging für Gesamtzeit
