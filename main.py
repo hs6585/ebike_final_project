@@ -67,12 +67,14 @@ plots.height_power_profile(timedt[:-1], elevation[:-1], sim_nmc.power_el_profile
 plots.soc_profile(timedt, elevation, sim_lipo.soc_profile, lipo) #Lade -und Höhenverlauf eines Lipoakkus plotten
 plots.soc_profile(timedt, elevation, sim_nmc.soc_profile, nmc) #Lade -und Höhenverlauf eines Nmcakkus plotten
 
+durations_in_seconds = np.diff(timedt) / np.timedelta64(1, 's')
+plots.plot_voltage_and_current_profile(sim_lipo.voltage_profile, sim_lipo.current_profile, durations_in_seconds, lipo) #Spannungs und Stromverlauf über die Zeit plotten (lipo)
+plots.plot_voltage_and_current_profile(sim_nmc.voltage_profile, sim_nmc.current_profile, durations_in_seconds, nmc) #Spannungs und Stromverlauf über die Zeit plotten (nmc)
+
 #Studie Radradius aus study.py
 study.wheel_study(data_dict, 13.5, 17, lipo)    #13.5 = standard radius und 17 = beliebiger Radius für Studie
 
-
 plot_height_map.height_map(data_dict, compass_direction)   #Die Höhenkarte über die Fahrt
-
 
 #damit alle Plots gleichzeitig öffnen und man sie mit esc wieder schließen kann
 def close_all_plots(event):
@@ -84,8 +86,6 @@ for fig_num in plt.get_fignums():
     fig.canvas.mpl_connect('key_press_event', close_all_plots)
 
 plt.show()
-
-
 
 h, m = gpsdata.calculate_total_time() #Berechnet Stunden und Minuten der Gesamtfahrtzeit 
 logging.info("Gesamtfahrzeit: %sh%smin", h, m) #Logging für Gesamtzeit

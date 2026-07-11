@@ -80,5 +80,54 @@ def soc_profile(time_dt, height, soc_verlauf, Akkutype:str):
 
     plt.tight_layout()
     
+def plot_voltage_and_current_profile(voltage_profile: list[float], current_profile: list[float], duration_profile: list[float], akkutype: str):
+    
+    """Plots the voltage and current over time profiles starting from t=0s. 
+    The voltage_profile must start with the initial voltage at t=0s, and the subsequent voltage values correspond to the voltage after applying the current for the respective duration intervals.
+    The voltage and current are assumed to be piecewise constant over the given duration intervals.
 
+    Parameters
+    ----------
+    voltage_profile : list[float]
+        List of voltage values in Volts (V) for each interval. Plus the initial voltage at t=0s.
+    current_profile : list[float]
+        List of current values in Amperes (A) for each interval.
+    duration_profile : list[float]
+        List of duration values in seconds (s) for each interval. Must have the same length as voltage_profile and current_profile.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The matplotlib figure object containing the plot of voltage and current over time."""
+
+
+    assert len(voltage_profile) - 1 == len(current_profile) == len(duration_profile), "Current and duration profiles must have the same length, and voltage profile must be longer by 1 to account for the starting voltage at t=0s."
+
+    t_plot, U_plot, I_plot = [], [], []
+
+    t_plot.append(0.0)
+    U_plot.append(voltage_profile[0])
+
+    t_total = 0.0
+    for U, I, d in zip(voltage_profile[1:], current_profile, duration_profile):
+        t_plot += [t_total, t_total + d]
+        U_plot += [U, U]
+        I_plot += [I, I]
+
+        t_total += d
+
+    fig, axV = plt.subplots(figsize=(9, 4.5))
+    axI = axV.twinx()
+
+    axI.title.set_text(f"Spannungs -und Stomverlauf {akkutype}")
+    axV.plot(t_plot[0:], U_plot, "b-", label="Voltage U / V")
+    axI.plot(t_plot[1:], I_plot, "r--", label="Current I / A")
+    axV.set_xlabel("Time $t$ / s")
+    axV.set_ylabel("Voltage $U$ / V", color="b")
+    axI.set_ylabel("Current $I$ / A", color="r")
+    axV.grid(True)
+    
+    fig.legend(loc="upper right", bbox_to_anchor=(0.85, 0.85))
+
+    return fig
 
