@@ -119,7 +119,7 @@ def plot_voltage_and_current_profile(voltage_profile: list[float], current_profi
     fig, axV = plt.subplots(figsize=(9, 4.5))
     axI = axV.twinx()
 
-    axI.title.set_text(f"Spannungs -und Stomverlauf {akkutype}")
+    axI.title.set_text(f"Spannungs- und Stromverlauf {akkutype}")
     axV.plot(t_plot[0:], U_plot, "b-", label="Voltage U / V")
     axI.plot(t_plot[1:], I_plot, "r--", label="Current I / A")
     axV.set_xlabel("Time $t$ / s")
@@ -129,5 +129,4 @@ def plot_voltage_and_current_profile(voltage_profile: list[float], current_profi
     
     fig.legend(loc="upper right", bbox_to_anchor=(0.85, 0.85))
 
-    return fig
 
