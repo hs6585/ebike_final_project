@@ -58,6 +58,17 @@ class CalcDataFromGPS():
         self.incline_angle = np.degrees(angle_rad)
 
         return self.incline_angle  
+
+    def calculate_air_density(self):
+        """Berechnet die Luftdichte"""
+        
+        # Luftdichte auf Meereshöhe
+        rho_0 = 1.225  
+        
+        # Barometrische Höhenformel für die Troposphäre
+        self.rho = rho_0 * (1 - 2.25577e-5 * self.ele) ** 4.25588
+        
+        return self.rho
     
     def calculate_drag_force(self, rho=1.2, cw_A=0.5625): #cw_A aus Aufgabenstellung entnommen
         """Berechnet die Luftwiderstandskraft."""
