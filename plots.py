@@ -132,6 +132,8 @@ def plot_voltage_and_current_profile(voltage_profile: list[float], current_profi
 
 def plot_air_density(time_dt, height, rho):
 
+    #Die Luftdichte ist in diesem Fall nicht exponentiell erkennbar, weil es bei so geringen Höhenunterschieden minimal ist.
+
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
 
     ax1.plot(time_dt, rho, color="k", linewidth=1.5, label="Luftdichte")
