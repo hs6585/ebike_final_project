@@ -2,4 +2,5 @@
 Final project PRO1 SS2026 from Stefan Höllrigl and Pit Boden.
 
 Aktivitätsdiagramm:
-<img width="774" height="1143" alt="FLoatchart_ebike" src="https://github.com/user-attachments/assets/b969fba7-abc9-4773-9b81-8be3536b3860" />
+<img width="863" height="1197" alt="PlantUML" src="https://github.com/user-attachments/assets/fbb9b1d0-4e98-4971-9bb5-2083cc262246" />
+
