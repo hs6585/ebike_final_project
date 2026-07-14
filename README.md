@@ -20,7 +20,7 @@ Aktivitätsdiagramm:
 <img width="863" height="1197" alt="ebike_aktivitaetsdiagramm" src="ebike_aktivitaetsdiagramm.png" />
 
 
-Klassendiagramm
+Klassendiagramm:
 
 <img width="1568" height="1251" alt="ebike_klassendiagramm" src="ebike_klassendiagramm.png" />
 
