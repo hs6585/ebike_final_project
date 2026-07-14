@@ -17,12 +17,12 @@ Es muss in Python 3.14.3 gearbeitet werden und die Git Bash muss genutzt werden.
 
 Aktivitätsdiagramm:
 
-<img width="863" height="1197" alt="PlantUML" src="https://github.com/user-attachments/assets/fbb9b1d0-4e98-4971-9bb5-2083cc262246" />
+<img width="863" height="1197" alt="ebike_aktivitaetsdiagramm" src="ebike_aktivitaetsdiagramm.png" />
 
 
 Klassendiagramm
 
-...
+<img width="1568" height="1251" alt="ebike_klassendiagramm" src="ebike_klassendiagramm.png" />
 
 
 # Installation und Anleitung:
