@@ -1,0 +1,120 @@
+@startuml ebike_klassendiagramm
+
+abstract class BatteryBase {
+  + C_nom : float
+  + soc : float
+  + R_int : float
+  + Vmin : float
+  + Vmax : float
+  --
+  + {abstract} __init__(capacity_nom_Ah: float, initial_soc: float)
+  + {abstract} apply_current(current: float, duration: float) : None
+  + {abstract} voltage(current: float) : float
+}
+
+class BatteryPack {
+  + C_nom_Ah : float
+  + C_nom : float
+  + soc : float
+  + R_int : float
+  + Vmin : float
+  + Vmax : float
+  --
+  + __init__(capacity_nom_Ah, internal_resistance_mOhm, initial_soc, Vmin, Vmax, cells_in_parallel)
+  + apply_current(current: float, duration: float) : None
+  + voltage(current: float) : float
+  + is_empty() : bool
+  + is_full() : bool
+  + __str__() : str
+}
+
+class LiPoBatteryPack {
+  + list_soc : list[float]
+  + list_uoc : list[float]
+  --
+  + __init__(capacity_nom_Ah, internal_resistance_mOhm, initial_soc, Vmin, Vmax, cells_in_parallel)
+  + voltage(current: float) : float
+}
+
+class NMCBatteryPack {
+  + list_soc : list[float]
+  + list_uoc : list[float]
+  --
+  + __init__(capacity_nom_Ah, internal_resistance_mOhm, initial_soc, Vmin, Vmax, cells_in_parallel)
+  + voltage(current: float) : float
+}
+
+BatteryBase <|-- BatteryPack
+BatteryPack <|-- LiPoBatteryPack
+BatteryPack <|-- NMCBatteryPack
+
+
+class Motor {
+  + c_m : float
+  + wheel_r : float
+  --
+  + __init__(motorconstant_Nm_A: float, wheel_radius_inch: float)
+  + calc_power_mech(force_N: float, velocity_m_s: float) : float
+  + calc_power_el(voltage_V, current_A) : list[float]
+  + calc_torque(force_N: float) : float
+  + calc_current_motor(torque_Nm: float) : float
+}
+
+
+
+class CalcDataFromGPS {
+  + data_dict : dict
+  + lat : ndarray
+  + lon : ndarray
+  + ele : ndarray
+  + time : ndarray
+  + s : ndarray
+  + v : ndarray
+  + a : ndarray
+  + incline_angle : ndarray
+  + F_D : ndarray
+  + F_A : ndarray
+  + totaldis : float
+  + sec : float
+  + himmelsrichtung : ndarray
+  --
+  + __init__(data_dict: dict)
+  + calculate_distance() : ndarray
+  + calculate_speed() : ndarray
+  + calculate_acceleration() : ndarray
+  + calculate_incline_angle() : ndarray
+  + calculate_air_density() : ndarray
+  + calculate_drag_force(rho, cw_A) : ndarray
+  + calculate_driving_force(m, g) : ndarray
+  + calculate_vm() : float
+  + calculate_asc_des() : tuple
+  + calculate_maxpow(power) : float
+  + calculate_total_dis() : float
+  + calculate_total_time() : tuple
+  + calculate_compass_direction() : ndarray
+}
+
+
+
+class EBikeSimluator {
+  + battery : BatteryBase
+  + motor : Motor
+  + voltage_profile : list[float]
+  + current_profile : list[float]
+  + soc_profile : list[float]
+  + power_el_profile : list[float]
+  + akku_warning_triggerd : bool
+  + akkutype : str
+  + batempty : bool
+  --
+  + __init__(battery: BatteryBase, motor: Motor)
+  + simulate(torque_profile, duration_profile, timedt, akkutype: str) : None
+}
+
+
+' Assoziationen: 
+EBikeSimluator "1" --> "1" BatteryBase : battery
+EBikeSimluator "1" --> "1" Motor : motor
+
+
+@enduml
