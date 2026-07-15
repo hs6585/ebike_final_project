@@ -32,7 +32,7 @@ Folgende Schritte müssen befolgt werden, um das Projekt in einer virtuellen Umg
 Lade den ZIP-Ordner von Github runter, navigiere in den Ordner ebike_final_project und öffne die Git Bash:
 
 1) ZIP-Ordner runterladen
-2) in den Ornder ebike_final_project navigieren
+2) in den Ornder ebike_final_project-main navigieren
 3) Git Bash in diesem Ornder öffnen
 
 
